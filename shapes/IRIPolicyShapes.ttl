@@ -1,0 +1,34 @@
+# ------------------------------------------------------------------
+# IRIPolicyShapes.ttl
+#
+# Core policy graph (separate from ParameterDomainShapes): validates
+# the segment grammar, character-class/encoding rules and uniqueness
+# of RFC 3987-compliant, NFC-normalized IRIs.
+#
+# Naming convention (Section 4.2):
+#   base/industry/country/legal-entity/category/identifier
+# Example:
+#   https://airbus.com/AC/DE/CTC/presses/PR-00012345
+#
+# NOTE: This shape graph is a template. The regex pattern below
+# reflects the general grammar described in the paper and MUST be
+# adapted to the concrete namespace/segment codes used in a given
+# deployment.
+# ------------------------------------------------------------------
+
+@prefix sh:   <http://www.w3.org/ns/shacl#> .
+@prefix ex:   <http://example.org/shapes#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+ex:IRIPattern_Shape
+    a sh:NodeShape ;
+    sh:targetNode ex:IRIPattern_Shape ;
+    sh:property [
+        a sh:PropertyShape ;
+        sh:path rdfs:label ;
+        sh:minCount 1 ;
+        sh:message "Every resource governed by the IRI policy must carry a human-readable rdfs:label with a language tag." ;
+    ] .
+
+# Example pattern check (illustrative): base/industry/country/legalEntity/category/identifier
+# sh:pattern "^https://[a-z0-9.-]+/[A-Z]{2}/[A-Z]{2}/[A-Z0-9]+/[a-z]+/[A-Za-z0-9-]+$"

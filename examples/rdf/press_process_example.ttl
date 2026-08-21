@@ -1,0 +1,79 @@
+# ------------------------------------------------------------------
+# Example static A-Box instantiation for the Langzauner LZTOK60L press
+# process and the Toray Cetex TC1225 (LM-PAEK) material.
+#
+# Source: Eckhoff et al., "Engineering Artifacts and Semantic
+# Interoperability: A Standardized, Constraint-Driven Static
+# Knowledge Graph for Manufacturing" (Section 4.5)
+#
+# NOTE: This is a shortened illustrative example (excerpt), NOT the
+# full production graph. It demonstrates the DIN EN 61360 / VDI 3682
+# instantiation pattern with Logic_Interpretation-based bounds.
+# ------------------------------------------------------------------
+
+@prefix ex:        <https://airbus.com/AC/DE/CTC/> .
+@prefix types:     <https://airbus.com/AC/DE/CTC/types/> .
+@prefix exp:       <https://airbus.com/AC/DE/CTC/presses/> .
+@prefix exm:       <https://airbus.com/AC/DE/CTC/materials/> .
+@prefix VDI3682:   <http://www.w3id.org/hsu-aut/VDI3682#> .
+@prefix DINEN61360: <http://www.w3id.org/hsu-aut/DINEN61360#> .
+@prefix unece:     <http://www.hsu-hh.de/aut/ontologies/unece#> .
+@prefix rdfs:      <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:       <http://www.w3.org/2001/XMLSchema#> .
+
+# ---------------------------------------------------------------
+# Technical Resource: Langzauner LZTOK60L Press
+# ---------------------------------------------------------------
+exp:MA8I1O8YZB a VDI3682:TechnicalResource ;
+    rdfs:label "Langzauner LZTOK60L"@de ;
+    DINEN61360:has_Data_Element exp:PlateTemperatureRange,
+                                 exp:PressForceRange .
+
+# --- Plate Temperature Range (Data Element) ---
+exp:PlateTemperatureRange a DINEN61360:Data_Element ;
+    DINEN61360:has_Type_Description unece:CEL ;
+    DINEN61360:has_Type_Description types:Temperature ;
+    DINEN61360:has_Instance_Description exp:PlateTemperatureMax .
+
+types:Temperature a DINEN61360:Type_Description ;
+    a unece:CEL .
+
+exp:PlateTemperatureMax a DINEN61360:Instance_Description ;
+    DINEN61360:Expression_Goal "Requirement" ;
+    DINEN61360:Logic_Interpretation "<=" ;
+    DINEN61360:Value "400" .
+
+# --- Press Force Range (Data Element) ---
+exp:PressForceRange a DINEN61360:Data_Element ;
+    DINEN61360:has_Type_Description types:Force ;
+    DINEN61360:has_Instance_Description exp:PressForceMax .
+
+types:Force a DINEN61360:Type_Description ;
+    a unece:NEW .
+
+exp:PressForceMax a DINEN61360:Instance_Description ;
+    DINEN61360:Expression_Goal "Requirement" ;
+    DINEN61360:Logic_Interpretation "<=" ;
+    DINEN61360:Value "600" .
+
+# ---------------------------------------------------------------
+# Material: Toray Cetex TC1225 (LM-PAEK)
+# ---------------------------------------------------------------
+exm:MAT-TC1225 a VDI3682:Product ;
+    rdfs:label "Toray Cetex TC1225 - Material - DE/CTC"@en ;
+    DINEN61360:has_Data_Element exm:ProcessingTemperatureTp .
+
+exm:ProcessingTemperatureTp a DINEN61360:Data_Element ;
+    DINEN61360:has_Type_Description unece:CEL ;
+    DINEN61360:has_Instance_Description exm:ProcessingTemperatureMin,
+                                          exm:ProcessingTemperatureMax .
+
+exm:ProcessingTemperatureMin a DINEN61360:Instance_Description ;
+    DINEN61360:Expression_Goal "Requirement" ;
+    DINEN61360:Logic_Interpretation ">=" ;
+    DINEN61360:Value "340" .
+
+exm:ProcessingTemperatureMax a DINEN61360:Instance_Description ;
+    DINEN61360:Expression_Goal "Requirement" ;
+    DINEN61360:Logic_Interpretation "<=" ;
+    DINEN61360:Value "385" .
