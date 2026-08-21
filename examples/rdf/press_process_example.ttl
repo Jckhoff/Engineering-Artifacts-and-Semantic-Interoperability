@@ -39,7 +39,7 @@ exp:MA8I1O8YZB a VDI3682:TechnicalResource ;
                                  exp:PressForceRange .
 
 # --- Plate Temperature Range (Data Element) ---
-exp:PlateTemperatureRange a DINEN61360:Data_Element ;
+exp:PlateTemperatureRange a parx:RangeRestriction ;
     DINEN61360:has_Type_Description unece:CEL ;
     DINEN61360:has_Type_Description types:Temperature ;
     DINEN61360:has_Instance_Description exp:PlateTemperatureMax .
