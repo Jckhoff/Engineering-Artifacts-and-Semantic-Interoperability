@@ -34,4 +34,4 @@ jobs:
         run: |
           pyshacl -s shapes/ParameterDomainShapes.ttl \
                    -d examples/rdf/press_process_example.ttl \
-                   -m -a -f human || true
+                   -a -f human || true
