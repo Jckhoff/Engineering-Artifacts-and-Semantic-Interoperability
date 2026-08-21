@@ -116,14 +116,15 @@ ex:DataElement_Shape
 # ---------------------------------------------------------------
 ex:InstanceDescription_MinMax_Shape
     a sh:NodeShape ;
-    sh:targetClass DINEN61360:Data_Element ;
+    sh:targetClass parx:RangeRestriction ;
     sh:sparql [
         a sh:SPARQLConstraint ;
-        sh:message "Data_Element must have one Instance_Description with >= (min) and one with <= (max)." ;
+        sh:message "RangeRestriction must have one Instance_Description with >= (min) and one with <= (max)." ;
         sh:select """
             PREFIX DINEN61360: <http://www.w3id.org/hsu-aut/DINEN61360#>
+            PREFIX parx: <http://www.hsu-hh.de/aut/parx/#>
             SELECT $this WHERE {
-                $this a DINEN61360:Data_Element .
+                $this a parx:RangeRestriction .
                 FILTER NOT EXISTS {
                     $this DINEN61360:has_Instance_Description ?idMin .
                     ?idMin DINEN61360:Logic_Interpretation ">=" .
