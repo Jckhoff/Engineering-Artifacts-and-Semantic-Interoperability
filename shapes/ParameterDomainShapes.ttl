@@ -17,7 +17,7 @@
 @prefix xsd:        <http://www.w3.org/2001/XMLSchema#> .
 @prefix rdf:        <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix ex:         <http://example.org/shapes#> .
-@prefix parx:      <http://www.hsu-hh.de/aut/ParX#> .
+@prefix parx:       <http://www.hsu-hh.de/aut/ParX#> .
 
 # ---------------------------------------------------------------
 # Type_Description: exactly one governing unit, taken from the
@@ -75,19 +75,21 @@ ex:InstanceDescription_Shape
         sh:message "Logic_Interpretation must be one of: >=, <=, >, <, =, IN." ;
     ] ;
 
-    sh:xone (
-        [
-            a sh:PropertyShape ;
-            sh:path DINEN61360:Value ;
-            sh:minCount 1 ;
-            sh:datatype xsd:string ;
-        ]
-    ) ;
-    sh:message "Instance_Description must have 'Value'" .
+    sh:property [
+        a sh:PropertyShape ;
+        sh:path DINEN61360:Value ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Instance_Description must have 'Value'." ;
+    ] .
 
 # ---------------------------------------------------------------
-# Data_Element: exactly one Type_Description, at least one
-# Instance_Description.
+# Data_Element (base class): at least one Type_Description and at
+# least one Instance_Description. NOTE: the upper bound on
+# has_Type_Description has been relaxed (sh:maxCount removed) to
+# accommodate multi-typed Data_Elements/Restrictions already present
+# in the static A-Box (e.g. a parx:LimitRestriction carrying both a
+# unit-level and a semantic Type_Description).
 # ---------------------------------------------------------------
 ex:DataElement_Shape
     a sh:NodeShape ;
@@ -97,9 +99,8 @@ ex:DataElement_Shape
         a sh:PropertyShape ;
         sh:path DINEN61360:has_Type_Description ;
         sh:minCount 1 ;
-        sh:maxCount 1 ;
         sh:class DINEN61360:Type_Description ;
-        sh:message "Data_Element must have exactly one Type_Description." ;
+        sh:message "Data_Element must have at least one Type_Description." ;
     ] ;
 
     sh:property [
@@ -111,29 +112,76 @@ ex:DataElement_Shape
     ] .
 
 # ---------------------------------------------------------------
-# Range-pairing rule: range-like parameters require exactly one
-# lower (>=) and one upper (<=) bound. Enforced via SPARQL-based
-# SHACL constraint.
+# parx:Restriction (common base shape): shared structural rules for
+# all restriction-typed Data_Elements, regardless of whether they are
+# a LimitRestriction or a RangeRestriction. Inherits the base
+# Data_Element cardinality via targetClass on the subclass hierarchy;
+# SHACL does not auto-inherit targets across rdfs:subClassOf, so
+# rules are restated explicitly per leaf class below.
 # ---------------------------------------------------------------
-ex:InstanceDescription_MinMax_Shape
+ex:Restriction_Shape
     a sh:NodeShape ;
-    sh:targetClass parx:RangeRestriction ;
+    sh:targetClass parx:Restriction ;
+    sh:property [
+        a sh:PropertyShape ;
+        sh:path DINEN61360:has_Type_Description ;
+        sh:minCount 1 ;
+        sh:class DINEN61360:Type_Description ;
+        sh:message "Restriction must have at least one Type_Description." ;
+    ] ;
+    sh:property [
+        a sh:PropertyShape ;
+        sh:path DINEN61360:has_Instance_Description ;
+        sh:minCount 1 ;
+        sh:class DINEN61360:Instance_Description ;
+        sh:message "Restriction must have at least one Instance_Description." ;
+    ] .
+
+# ---------------------------------------------------------------
+# parx:LimitRestriction: exactly one directed single-sided bound
+# (Logic_Interpretation in {<=, <, >=, >}). Represents a single
+# limit rather than a paired interval.
+# ---------------------------------------------------------------
+ex:LimitRestriction_Shape
+    a sh:NodeShape ;
+    sh:targetClass parx:LimitRestriction ;
+
+    sh:property [
+        a sh:PropertyShape ;
+        sh:path DINEN61360:has_Instance_Description ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class DINEN61360:Instance_Description ;
+        sh:message "LimitRestriction must have exactly one Instance_Description (a single directed bound)." ;
+    ] ;
+
     sh:sparql [
         a sh:SPARQLConstraint ;
-        sh:message "RangeRestriction must have one Instance_Description with >= (min) and one with <= (max)." ;
-        sh:select """
-            PREFIX DINEN61360: <http://www.w3id.org/hsu-aut/DINEN61360#>
-            PREFIX parx:      <http://www.hsu-hh.de/aut/ParX#> .
-            SELECT $this WHERE {
-                $this a parx:RangeRestriction .
-                FILTER NOT EXISTS {
-                    $this DINEN61360:has_Instance_Description ?idMin .
-                    ?idMin DINEN61360:Logic_Interpretation ">=" .
-                    $this DINEN61360:has_Instance_Description ?idMax .
-                    ?idMax DINEN61360:Logic_Interpretation "<=" .
-                }
-            }
-        """ ;
+        sh:message "LimitRestriction's Instance_Description must use a single-sided Logic_Interpretation (<=, <, >=, or >), not '='." ;
+        sh:select "PREFIX DINEN61360: <http://www.w3id.org/hsu-aut/DINEN61360#> SELECT $this WHERE { $this a <http://www.hsu-hh.de/aut/ParX#LimitRestriction> . $this DINEN61360:has_Instance_Description ?id . ?id DINEN61360:Logic_Interpretation ?li . FILTER ( ?li NOT IN ( \"<=\" , \"<\" , \">=\" , \">\" ) ) }" ;
+    ] .
+
+# ---------------------------------------------------------------
+# parx:RangeRestriction: requires a paired lower (>=) and upper (<=)
+# bound across exactly/at least two Instance_Description individuals.
+# Enforced via a SPARQL-based SHACL constraint (range-pairing rule).
+# ---------------------------------------------------------------
+ex:RangeRestriction_Shape
+    a sh:NodeShape ;
+    sh:targetClass parx:RangeRestriction ;
+
+    sh:property [
+        a sh:PropertyShape ;
+        sh:path DINEN61360:has_Instance_Description ;
+        sh:minCount 2 ;
+        sh:class DINEN61360:Instance_Description ;
+        sh:message "RangeRestriction must have at least two Instance_Description individuals (lower and upper bound)." ;
+    ] ;
+
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "RangeRestriction must have one Instance_Description with '>=' (min) and one with '<=' (max)." ;
+        sh:select "PREFIX DINEN61360: <http://www.w3id.org/hsu-aut/DINEN61360#> PREFIX parx: <http://www.hsu-hh.de/aut/ParX#> SELECT $this WHERE { $this a parx:RangeRestriction . FILTER NOT EXISTS { $this DINEN61360:has_Instance_Description ?idMin . ?idMin DINEN61360:Logic_Interpretation \">=\" . $this DINEN61360:has_Instance_Description ?idMax . ?idMax DINEN61360:Logic_Interpretation \"<=\" . } }" ;
     ] .
 
 # ---------------------------------------------------------------
