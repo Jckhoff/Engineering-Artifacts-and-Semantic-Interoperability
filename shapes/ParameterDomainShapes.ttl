@@ -20,31 +20,20 @@
 @prefix parx:       <http://www.hsu-hh.de/aut/ParX#> .
 
 # ---------------------------------------------------------------
-# Type_Description: exactly one governing unit, taken from the
-# controlled UNECE vocabulary subset used by the A-Box.
+# Type_Description: must exist (targetClass) and must carry at
+# least one rdf:type drawn from the controlled UNECE unit
+# vocabulary. Uses a SPARQL existence check because a
+# Type_Description legitimately has multiple rdf:type values
+# (its own class DINEN61360:Type_Description plus a UNECE unit).
 # ---------------------------------------------------------------
 ex:TypeDescription_Shape
     a sh:NodeShape ;
     sh:targetClass DINEN61360:Type_Description ;
-    sh:property [
-        a sh:PropertyShape ;
-        sh:path rdf:type ;
-        sh:minCount 1 ;
-        sh:message "Type_Description must declare a unit via rdf:type." ;
-    ] ;
-    sh:property [
-        a sh:PropertyShape ;
-        sh:path rdf:type ;
-        sh:in (
-            unece:CEL
-            unece:NEW
-            unece:MTS
-            unece:WTT
-            unece:MTR
-            unece:28
-            unece:kVA
-        ) ;
-        sh:message "Only predefined UNECE units are allowed as rdf:type." ;
+
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "Type_Description must declare at least one rdf:type from the UNECE unit vocabulary." ;
+        sh:select "PREFIX unece: <http://www.hsu-hh.de/aut/ontologies/unece#> SELECT $this WHERE { FILTER NOT EXISTS { $this a ?u . FILTER ( ?u IN ( unece:CEL , unece:NEW , unece:MTS , unece:WTT , unece:MTR , unece:28 , unece:kVA ) ) } }" ;
     ] .
 
 # ---------------------------------------------------------------
@@ -84,12 +73,11 @@ ex:InstanceDescription_Shape
     ] .
 
 # ---------------------------------------------------------------
-# Data_Element (base class): at least one Type_Description and at
-# least one Instance_Description. NOTE: the upper bound on
-# has_Type_Description has been relaxed (sh:maxCount removed) to
-# accommodate multi-typed Data_Elements/Restrictions already present
-# in the static A-Box (e.g. a parx:LimitRestriction carrying both a
-# unit-level and a semantic Type_Description).
+# Data_Element (base class): at least one Type_Description
+# reference and at least one Instance_Description. The
+# has_Type_Description value may EITHER be a proper
+# DINEN61360:Type_Description instance OR a direct UNECE unit code
+# IRI (shorthand pattern present in the static A-Box).
 # ---------------------------------------------------------------
 ex:DataElement_Shape
     a sh:NodeShape ;
@@ -99,8 +87,11 @@ ex:DataElement_Shape
         a sh:PropertyShape ;
         sh:path DINEN61360:has_Type_Description ;
         sh:minCount 1 ;
-        sh:class DINEN61360:Type_Description ;
-        sh:message "Data_Element must have at least one Type_Description." ;
+        sh:or (
+            [ sh:class DINEN61360:Type_Description ]
+            [ sh:in ( unece:CEL unece:NEW unece:MTS unece:WTT unece:MTR unece:28 unece:kVA ) ]
+        ) ;
+        sh:message "Data_Element must have at least one Type_Description or a direct UNECE unit reference." ;
     ] ;
 
     sh:property [
@@ -114,21 +105,25 @@ ex:DataElement_Shape
 # ---------------------------------------------------------------
 # parx:Restriction (common base shape): shared structural rules for
 # all restriction-typed Data_Elements, regardless of whether they are
-# a LimitRestriction or a RangeRestriction. Inherits the base
-# Data_Element cardinality via targetClass on the subclass hierarchy;
-# SHACL does not auto-inherit targets across rdfs:subClassOf, so
-# rules are restated explicitly per leaf class below.
+# a LimitRestriction or a RangeRestriction. SHACL does not
+# auto-inherit targets across rdfs:subClassOf, so rules are restated
+# explicitly here and specialized further below.
 # ---------------------------------------------------------------
 ex:Restriction_Shape
     a sh:NodeShape ;
     sh:targetClass parx:Restriction ;
+
     sh:property [
         a sh:PropertyShape ;
         sh:path DINEN61360:has_Type_Description ;
         sh:minCount 1 ;
-        sh:class DINEN61360:Type_Description ;
-        sh:message "Restriction must have at least one Type_Description." ;
+        sh:or (
+            [ sh:class DINEN61360:Type_Description ]
+            [ sh:in ( unece:CEL unece:NEW unece:MTS unece:WTT unece:MTR unece:28 unece:kVA ) ]
+        ) ;
+        sh:message "Restriction must have at least one Type_Description or a direct UNECE unit reference." ;
     ] ;
+
     sh:property [
         a sh:PropertyShape ;
         sh:path DINEN61360:has_Instance_Description ;
@@ -163,7 +158,7 @@ ex:LimitRestriction_Shape
 
 # ---------------------------------------------------------------
 # parx:RangeRestriction: requires a paired lower (>=) and upper (<=)
-# bound across exactly/at least two Instance_Description individuals.
+# bound across at least two Instance_Description individuals.
 # Enforced via a SPARQL-based SHACL constraint (range-pairing rule).
 # ---------------------------------------------------------------
 ex:RangeRestriction_Shape
