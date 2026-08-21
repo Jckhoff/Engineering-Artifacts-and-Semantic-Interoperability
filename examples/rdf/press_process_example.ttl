@@ -53,7 +53,7 @@ exp:PlateTemperatureMax a DINEN61360:Instance_Description ;
     DINEN61360:Value "400" .
 
 # --- Press Force Range (Data Element) ---
-exp:PressForceRange a DINEN61360:Data_Element ;
+exp:PressForceRange a parx:LimitRestriction ;
     DINEN61360:has_Type_Description types:Force ;
     DINEN61360:has_Instance_Description exp:PressForceMax .
 
@@ -72,7 +72,7 @@ exm:MAT-TC1225 a VDI3682:Product ;
     rdfs:Label "Toray Cetex TC1225 - Material - DE/CTC"@en ;
     DINEN61360:has_Data_Element exm:ProcessingTemperatureTp .
 
-exm:ProcessingTemperatureTp a DINEN61360:Data_Element ;
+exm:ProcessingTemperatureTp a parx:RangeRestriction ;
     DINEN61360:has_Type_Description unece:CEL ;
     DINEN61360:has_Instance_Description exm:ProcessingTemperatureMin,
                                           exm:ProcessingTemperatureMax .
