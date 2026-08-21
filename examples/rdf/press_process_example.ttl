@@ -22,6 +22,10 @@
 @prefix xsd:       <http://www.w3.org/2001/XMLSchema#> .
 @prefix parx:      <http://www.hsu-hh.de/aut/parx/#> .
 
+parx:Restriction
+    a owl:Class ;
+    rdfs:SubClassOf DINEN61360:Data_Element
+
 parx:RangeRestriction
     a owl:Class ;
     rdfs:SubClassOf parx:Restriction .
