@@ -20,12 +20,21 @@
 @prefix unece:     <http://www.hsu-hh.de/aut/ontologies/unece#> .
 @prefix rdfs:      <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix xsd:       <http://www.w3.org/2001/XMLSchema#> .
+@prefix parx:      <http://www.hsu-hh.de/aut/parx/#> .
+
+parx:RangeRestriction
+    a owl:Class ;
+    rdfs:SubClassOf parx:Restriction .
+
+parx:LimitRestriction
+    a owl:Class ;
+    rdfs:SubClassOf parx:Restriction .
 
 # ---------------------------------------------------------------
 # Technical Resource: Langzauner LZTOK60L Press
 # ---------------------------------------------------------------
 exp:MA8I1O8YZB a VDI3682:TechnicalResource ;
-    rdfs:label "Langzauner LZTOK60L"@de ;
+    rdfs:Label "Langzauner LZTOK60L"@de ;
     DINEN61360:has_Data_Element exp:PlateTemperatureRange,
                                  exp:PressForceRange .
 
@@ -60,7 +69,7 @@ exp:PressForceMax a DINEN61360:Instance_Description ;
 # Material: Toray Cetex TC1225 (LM-PAEK)
 # ---------------------------------------------------------------
 exm:MAT-TC1225 a VDI3682:Product ;
-    rdfs:label "Toray Cetex TC1225 - Material - DE/CTC"@en ;
+    rdfs:Label "Toray Cetex TC1225 - Material - DE/CTC"@en ;
     DINEN61360:has_Data_Element exm:ProcessingTemperatureTp .
 
 exm:ProcessingTemperatureTp a DINEN61360:Data_Element ;
