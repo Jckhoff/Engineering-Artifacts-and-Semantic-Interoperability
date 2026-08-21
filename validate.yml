@@ -1,0 +1,37 @@
+name: Validate RDF / SHACL
+
+on:
+  pull_request:
+    branches: [ main ]
+  push:
+    branches: [ main ]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install rdflib pyshacl
+
+      - name: Validate RDF syntax (Turtle)
+        run: |
+          python -c "
+          import glob, rdflib
+          for f in glob.glob('examples/rdf/*.ttl') + glob.glob('shapes/*.ttl'):
+              g = rdflib.Graph()
+              g.parse(f, format='turtle')
+              print(f'OK: {f} ({len(g)} triples)')
+          "
+
+      - name: Run SHACL validation (ParameterDomainShapes)
+        run: |
+          pyshacl -s shapes/ParameterDomainShapes.ttl \
+                   -d examples/rdf/press_process_example.ttl \
+                   -m -a -f human || true
