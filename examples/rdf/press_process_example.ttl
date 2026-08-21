@@ -24,15 +24,15 @@
 
 parx:Restriction
     a owl:Class ;
-    rdfs:SubClassOf DINEN61360:Data_Element .
+    rdfs:subClassOf DINEN61360:Data_Element .
 
 parx:RangeRestriction
     a owl:Class ;
-    rdfs:SubClassOf parx:Restriction .
+    rdfs:subClassOf parx:Restriction .
 
 parx:LimitRestriction
     a owl:Class ;
-    rdfs:SubClassOf parx:Restriction .
+    rdfs:subClassOf parx:Restriction .
 
 # ---------------------------------------------------------------
 # Technical Resource: Langzauner LZTOK60L Press
