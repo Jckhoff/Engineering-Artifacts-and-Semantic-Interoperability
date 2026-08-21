@@ -24,7 +24,7 @@
 
 parx:Restriction
     a owl:Class ;
-    rdfs:SubClassOf DINEN61360:Data_Element
+    rdfs:SubClassOf DINEN61360:Data_Element .
 
 parx:RangeRestriction
     a owl:Class ;
