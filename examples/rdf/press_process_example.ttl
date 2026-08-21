@@ -20,7 +20,7 @@
 @prefix unece:     <http://www.hsu-hh.de/aut/ontologies/unece#> .
 @prefix rdfs:      <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix xsd:       <http://www.w3.org/2001/XMLSchema#> .
-@prefix parx:      <http://www.hsu-hh.de/aut/parx/#> .
+@prefix parx:      <http://www.hsu-hh.de/aut/ParX#> .
 
 parx:Restriction
     a owl:Class ;
